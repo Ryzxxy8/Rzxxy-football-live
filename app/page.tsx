@@ -7,6 +7,8 @@ type Match = {
   id: number;
   home: string;
   away: string;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
   homeScore: number | null;
   awayScore: number | null;
   minute: string;
@@ -17,6 +19,14 @@ type Match = {
 };
 
 const filters = ["All Matches", "LIVE", "Upcoming", "Finished"] as const;
+
+function TeamCrest({ name, logo }: { name: string; logo?: string | null }) {
+  const [failed, setFailed] = useState(false);
+  if (!logo || failed) {
+    return <div aria-label={name + " crest unavailable"} title={name} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs font-black text-lime-300">{name.split(/\\s+/).map((part) => part[0]).join("").slice(0, 3).toUpperCase()}</div>;
+  }
+  return <img src={logo} alt={name + " logo"} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} className="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-0.5" />;
+}
 
 export default function Home() {
   const [active, setActive] = useState<string>("All Matches");
@@ -103,7 +113,7 @@ export default function Home() {
         {!loading && filtered.length > 0 && <div className="grid gap-4 lg:grid-cols-2">{filtered.map((match) => (
           <article key={match.id} className="rounded-2xl border border-white/10 bg-[#10151d] p-5 transition hover:border-lime-400/40">
             <div className="mb-5 flex items-center justify-between gap-2"><span className="text-xs text-gray-400">{match.league}{match.country ? ` · ${match.country}` : ""}</span><span className={`rounded-md px-2 py-1 text-xs font-bold ${match.status === "LIVE" ? "bg-red-500/15 text-red-400" : "bg-white/5 text-gray-400"}`}>{match.status === "LIVE" ? "● LIVE" : match.status}</span></div>
-            <div className="flex items-center justify-between gap-3"><div className="min-w-0 flex-1"><div className="truncate text-lg font-bold">{match.home}</div><div className="mt-3 truncate text-lg font-bold">{match.away}</div></div><div className="text-right">{match.status === "UPCOMING" ? <div className="text-sm font-semibold text-gray-300">{match.date ? new Date(match.date).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yangon" }) + " MMT" : "Scheduled"}</div> : <div className="text-2xl font-black">{match.homeScore ?? "–"} - {match.awayScore ?? "–"}</div>}<div className="mt-2 text-xs text-gray-500">{match.status === "LIVE" ? match.minute : match.status === "FINISHED" ? "Full time" : "Kick-off"}</div></div></div>
+            <div className="flex items-center justify-between gap-3"><div className="min-w-0 flex-1 space-y-3"><div className="flex min-w-0 items-center gap-3"><TeamCrest name={match.home} logo={match.homeLogo} /><div className="truncate text-lg font-bold">{match.home}</div></div><div className="flex min-w-0 items-center gap-3"><TeamCrest name={match.away} logo={match.awayLogo} /><div className="truncate text-lg font-bold">{match.away}</div></div></div><div className="text-right">{match.status === "UPCOMING" ? <div className="text-sm font-semibold text-gray-300">{match.date ? new Date(match.date).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Yangon" }) + " MMT" : "Scheduled"}</div> : <div className="text-2xl font-black">{match.homeScore ?? "–"} - {match.awayScore ?? "–"}</div>}<div className="mt-2 text-xs text-gray-500">{match.status === "LIVE" ? match.minute : match.status === "FINISHED" ? "Full time" : "Kick-off"}</div></div></div>
             <button onClick={() => setSelected(match)} className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 py-3 text-sm font-semibold transition hover:border-lime-400/50 hover:text-lime-300"><Tv size={17} /> Match Details</button>
           </article>
         ))}</div>}
