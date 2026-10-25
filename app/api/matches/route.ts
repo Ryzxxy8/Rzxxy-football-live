@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 type ApiFixture = {
   fixture?: { id?: number; date?: string; status?: { short?: string; elapsed?: number | null } };
   league?: { name?: string; country?: string };
-  teams?: { home?: { name?: string }; away?: { name?: string } };
+  teams?: { home?: { name?: string; logo?: string | null }; away?: { name?: string; logo?: string | null } };
   goals?: { home?: number | null; away?: number | null };
 };
 
@@ -17,6 +17,8 @@ function normalize(item: ApiFixture) {
     id: item.fixture?.id ?? Math.random(),
     home: item.teams?.home?.name ?? "Home team",
     away: item.teams?.away?.name ?? "Away team",
+    homeLogo: item.teams?.home?.logo ?? null,
+    awayLogo: item.teams?.away?.logo ?? null,
     homeScore: item.goals?.home ?? null,
     awayScore: item.goals?.away ?? null,
     minute: item.fixture?.status?.elapsed != null ? String(item.fixture.status.elapsed) + "'" : status,
